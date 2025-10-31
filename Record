@@ -34,3 +34,136 @@ bool isPrime(int input) {
 }
 
 --------------------------------------------------------
+3.打印杨辉三角。
+/*
+特点：
+（1）第n行有n个元素。
+（2) 每一行第一个和最后一个元素是1。
+（3）中间元素[i][j]的值 = [i-1][j-1] + [i-1][j];
+*/
+
+代码如下： 
+#include <iostream>
+#include <vector>
+//using namespace std;
+
+int main() {
+
+    int n;
+    std::cin >> n;
+    std::vector<std::vector<int>> vec(10,std::vector<int>(10));
+
+    for (int i = 0; i < n; i++) {
+        vec[i][0] = 1;
+        for (int j = 1; j < i; j++) {
+                vec[i][j] = vec[i - 1][j - 1] + vec[i - 1][j];
+        }
+        vec[i][i] = 1;
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j <= i; j++) {
+            std::cout << vec[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    return 0;
+}
+
+------------------------------------------------------
+4.包围圈。
+/*
+东东哥在一场军事演练中,需要对一片正方形森林进行排查,
+为了防止被包围,东东哥需要先排查外围才能进一步深入
+输入:正整数n(1<n<10),表示森林的边长
+输出:东东哥排查森林的顺序
+
+
+样例输入:
+4
+样例输出:
+ 1  2  3  4
+12 13 14  5
+11 16 15  6
+10  9  8  7
+
+思路：
+顺时针，所以 左->右->下->上 四个方向及顺序 在数组中移动。
+按照递归思路，将一次 左右下上 作为一个循环 ，设置边界（即移动终点），
+每次循环结束，边界收缩，进入下一个循环。
+
+*/
+
+#include <iostream>
+#include <vector>
+
+//设置left、right、top、bottom四个边界。
+//分别进行移动并赋值
+int main() {
+    int n;
+    std::cin >> n;
+
+    std::vector<std::vector<int>> vec(n,std::vector<int>(n));
+
+    int left, right, top, bottom;
+    left = 0; right = n - 1;
+    top = 0; bottom = n - 1;
+    int num = 1;//记录当前是第几步
+
+    //移动按照顺时针顺序，即 向右-向下-向左-向上
+    //在围完一圈后，令边界向内收缩，再重复上述操作移动
+
+    while (num <= n * n) {
+
+        //向右移动
+        for (int i = left; i <= right; i++) {
+            vec[top][i] = num++;
+        }
+        top++;
+        //防止越界
+        if (left > right) break;
+
+
+        //向下运动
+        for (int i = top; i <= bottom; i++) {
+            vec[i][right] = num++;
+        }
+        right--;
+        //防止越界
+        if (top > bottom) break;
+
+        //向左运动
+        for (int i = right; i >= left; i--) {
+            vec[bottom][i] = num++;
+        }
+        bottom--;
+        //防止越界
+        if (left > right) break;
+
+        //向上运动
+        for (int i = bottom; i >= top; i--) {
+            vec[i][left] = num++;
+        }
+        left++;
+        //防止越界
+        if (top > bottom) break;
+
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (vec[i][j] < 10) {
+                std::cout << vec[i][j] << "  ";
+            }
+            else {
+                std::cout << vec[i][j] << " ";
+            }
+        }
+        std::cout << std::endl;
+        std::cout << std::endl;
+    }
+
+
+    return 0;
+}
