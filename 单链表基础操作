@@ -1,0 +1,266 @@
+#include <iostream>
+using namespace std;
+
+//定义链表数据域的数据类型为ElemType
+typedef int ElemType;
+
+/*
+定义链表，
+本质上是是定义每个结点node里包含的东西，
+有数据域和指针域，来保证结点存在有效数据和下一个结点的地址
+*/
+typedef struct node{
+	ElemType data;
+	struct node* next;
+}Node;
+
+/*
+初始化链表,
+本质上是开辟一块空间给头节点，
+并初始化头节点包含的内容，比如data和node*指针，
+并返回其在堆内存的地址，用node*指针
+*/
+
+Node* initList() {
+	//分配空间
+	Node* head = (Node*)malloc(sizeof(Node));
+	//初始化
+	head->data = 0;
+	head->next = NULL;
+
+	return head;
+}
+
+/*
+头插法 插入结点
+传入 链表指针  Node *L 和 新节点存入的数据data
+本质上是创建一片Node类型大小的空间，并将空间的地址传给Node* p指针，用指针来操作地址，
+先将 head的next指针指向的空间的地址 保存到 p操作的空间的next指针中， 
+再将 head结点的next指针保存的地址 换成 新创建的空间的地址p
+*/
+
+void insertHead(Node *L,ElemType data) {
+	Node* p = (Node*)malloc(sizeof(Node));
+	p->data = data;
+	p->next = L->next;
+	L->next = p;
+}
+
+/*
+链表的遍历
+本质上是当next不为空是，即存在next结点时，利用next指针找到并操作链表中的各节点
+将 除头节点以外 的结点的data数据输出出来
+*/
+
+void listNode(Node* L) {
+	//找一个指针p来指向要遍历的结点
+	Node* p = L->next;
+
+	while (p != NULL) {
+		cout << p->data << " ";
+		p = p->next;
+	}
+}
+
+/*
+尾插法插入元素
+参数为 链表list的尾节点Tail指针，插入的节点的数据data
+本质上是首先用getTail()遍历得到链表list的尾节点，用tail指针指向尾节点
+将data赋值给新节点后，
+将tail的next指针指向新节点，
+并返回新节点
+再后续操作中用tail指针指向新节点
+*/
+
+	/*
+	遍历获取链表的尾结点
+	参数 链表指针list
+	返回值 尾结点指针Tail
+	*/
+Node* getTail(Node* L) {
+	//创建链表list的结点指针Node* p,初始化指向头结点
+	Node* p = L;
+	
+	//遍历得到尾结点p
+	while (p->next != NULL) {
+		p = p->next;
+	}
+
+	return p;
+}
+
+Node* insertTail(Node* Tail, ElemType data) {
+	//创建新节点，并用p指针指向新节点
+	Node* p = (Node*)malloc(sizeof(Node));
+	p->data = data;
+	p->next = NULL;
+
+	//将tail指针指向的尾结点的naxt指针指向新节点指针p
+	Tail->next = p;
+
+	return p;
+}
+
+/*
+指定位置插入结点
+参数有 链表指针list，插入位置（要成为第几个结点）pos，插入节点的数据data
+本质是创建一个新结点并将地址赋给指针Node* q，用q给节点存入数据data
+从头节点L（用头结点表示链表list）开始遍历找到第pos-1个结点，用指针p指引
+如果pos > 链表的结点的个数， 则默认插入到链表最后
+将新节点q的next指针指向p的next指向的结点，再将p的next指向的结点更新为q
+*/
+
+void insertNode(Node* L, int pos, int data) {
+	//创建新节点
+	Node* q = (Node*)malloc(sizeof(Node));
+	q->data = data;
+
+	//p指向第pos-1个结点
+		//如果pos=1，即结点插入后成为第一个结点，此时第pos-1个就是L结点
+		//创建指针p指向头结点L
+	Node* p = L;
+	int i = 0;
+	for (; i < pos - 1; ++i) {
+		p = p->next;
+		//如果pos > 链表个数， p在指向最后结点时停止
+		if (p == NULL) {
+			return;
+		}
+	}
+
+	//在该位置完成插入
+	q->next = p->next;
+	p->next = q;
+}
+
+/*
+删除指定位置的结点
+参数 链表指针list， 要删除的元素的位置pos
+本质是 先通过指针p遍历找到并指向链表第pos-1个元素，创建指针q指向第pos个元素，
+将p指向的结点的next指针指向的下一个结点 更新成 q指向的结点的next指针指向的下一个结点
+再将q结点指向的堆内存里的空间释放掉free(q)
+*/
+
+void deleteNode(Node* L, int pos) {
+	//通过指针p遍历指向第pos-1个元素
+	Node* p = L;
+	int i = 0;
+	for (; i < pos - 1; ++i) {
+		p = p->next;
+		//先判断 如果第pos-1个元素为空，即没有第pos-1个元素时，pos没有指向有效的位置，不能随意删除最后结点，所以只能函数结束
+		//判断第pos-1结点存在时，再判断p->next结点是否存在，不然容易出错。
+		if (p == NULL || p->next == NULL) {
+			cout << pos << "不是一个有效的位置" << endl;
+			return;
+		}
+	}
+
+	//创建指针q指向第pos个元素
+	Node* q = p->next;
+
+	//更新
+	p->next = q->next;
+
+	//释放q指向的无用空间
+	free(q);
+
+}
+
+/*
+获取链表长度
+参数 链表指针list
+设长度变量len，遍历链表，从首结点到尾结点，++len
+返回 len
+*/
+
+int getListLength(Node* L) {
+	//长度变量，初始化为0,同时指示遍历到第几个结点
+	int len = 0;
+
+	//指针初始化指向头结点
+	Node* p = L;
+
+	//计数结点个数
+	while (p->next != NULL) {
+		p = p->next;
+		++len;
+	}
+
+	return len;
+}
+
+/*
+释放整个链表，只保留头结点
+判断是否有非头结点的结点，只有头结点则结束函数，
+		有首结点则创建指针Node* p指向首结点,
+当p不为空时，
+	将p->next保存到q中，即保存了剩余的数据结点链
+	free()释放p，再将q中保存的赋到p中，如此循环
+
+Node* p指向数据结点的第一个节点，
+Node* q负责 删除首结点时 保存下一串数据节点的第一个节点
+
+
+p = 第一个数据节点，即首结点
+
+q = p->next
+free(p)
+p = q
+如此循环，知道p为NULL，即数据节点全部释放free()
+*/
+
+void freeList(Node* L) {
+	if (L->next == NULL) {
+		return;
+	}
+
+	Node* p = L->next;
+	Node* q;
+	while (p != NULL) {
+		q = p->next;
+		free(p);
+		p = q;
+	}
+	L->next = NULL;
+	
+}
+
+int main() {
+	//创建并初始化一个链表
+	Node* list = initList();
+	Node* Tail = getTail(list);
+	Tail = insertTail(Tail, 1);
+	Tail = insertTail(Tail, 2);
+	listNode(list);
+	cout << endl;
+	cout << "链表中共有 " << getListLength(list) << " 个结点" << endl;
+
+	insertNode(list, 3, 4);
+	insertNode(list, 3, 3);
+	listNode(list);
+	cout << endl;
+	cout << "链表中共有 " << getListLength(list) << " 个结点" << endl;
+
+	insertHead(list, 1);
+	insertHead(list, 2);
+	insertHead(list, 3);
+	insertHead(list, 4);
+	listNode(list);
+	cout << endl;
+	cout << "链表中共有 " << getListLength(list) << " 个结点" << endl;
+
+	deleteNode(list, 5);
+	deleteNode(list, 5);
+	deleteNode(list, 5);
+	deleteNode(list, 5);
+	listNode(list);
+	cout << endl;
+	cout << "链表中共有 " << getListLength(list) << " 个结点" << endl;
+
+	freeList(list);
+	listNode(list);
+	cout << endl;
+	cout << "链表中共有 " << getListLength(list) << " 个结点" << endl;
+
+	return 0;
+}
